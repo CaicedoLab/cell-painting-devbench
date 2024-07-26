@@ -81,4 +81,4 @@ Open and run the following notebooks in order:
 
 `06-train-test-split.ipynb`: Splits the dataset into training and testing sets based on compounds.
 `07-moa-classification`: Trains models and predicts the mechanism of action (MOA) using different feature sets.
-`08-moa-predictions-visualization.ipynb`: Visualizes the predictions made by the MOA classification models.
+`08-moa-predictions-visualization.ipynb`: Visualizes the predictions made by the MOA classification models.# check
