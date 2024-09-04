@@ -2,15 +2,6 @@
 ## Overview
 This repository provides a step-by-step guide to successfully run the Dino4Cells_analysis with a focus on the dino-cp-analysis part. This project aims to use self-supervised learning methods (like DINO) to analyze biological imaging data and compare its performance with traditional feature extraction methods.
 
-## Data Structure
-The `data.tar.gz` file contains all the necessary requirements and output data for the database.
-
-The `notebook` directory contains Jupyter notebooks for analysis and visualization:
-
-- **06-train-test-split.ipynb:** Notebook for splitting the features into training and testing datasets based on compounds.
-- **07-moa-classification:** Notebook and scripts for compound mechanism of action (MOA) classification.
-- **08-moa-predictions-visualization.ipynb:** Notebook for visualizing the predictions of MOA.
-
 ## Installation Guide
 ### 1. Clone the Repository
 First, clone the repository to your local machine using Git:
