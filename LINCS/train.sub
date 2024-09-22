@@ -1,0 +1,23 @@
+universe = docker
+docker_image = docker://adipill04/pipeline:3
+
+executable=./train.sh
+
+output = gpu-chtc_$(Cluster).out
+error = gpu-chtc_$(Cluster).err
+log = gpu-chtc_$(Cluster).log
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+
+#ensure this value == exp_name (train.sh)
+transfer_output_files = /scratch/appillai/cell-painting-devbench1/LINCS/test1.zip 
+
++wantGPULab = True
+request_cpus = 10
+request_gpus = 1
+request_memory = 50GB
+request_disk = 150GB
+requirements = (Machine == "jcaicedogpu0000.chtc.wisc.edu")
+
+queue
