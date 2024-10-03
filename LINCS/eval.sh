@@ -1,12 +1,12 @@
 #!/bin/bash
 
-#set experiment name (add .zip at the end). BE SURE to change transfer_output_files (train.sub) value to exp_name
-exp_name='test1.zip'
-
-mv 01-feature-extraction.py 02-lincs-well-aggregation-sphering-vits.py 03-align-cellprofiler-profiles.py 04-train-test-split.py 06-moa-predictions-visualization.py /scratch/appillai/cell-painting-devbench1/LINCS
-cd /scratch/appillai/cell-painting-devbench1/LINCS
-
-#python 01-feature-extraction.py NOT CONFIGURED YET
+export job_dir=$(pwd)
+cd /scratch/appillai
+mkdir $exp_name
+cp -r cell-painting-devbench1 data ./$exp_name
+cd ./$exp_name/cell-painting-devbench1/LINCS
+mv $job_dir/*.py ./
+cp /staging/groups/caicedo_group/features_eval/$feat_name ./
 
 python 02-lincs-well-aggregation-sphering-vits.py
 
@@ -20,15 +20,13 @@ cd ..
 
 python 06-moa-predictions-visualization.py
 
-rm cp_level4_cpd_replicates.csv.gz
-mkdir output
-mv celldino_ps8_ViTs ./output
-mkdir celldino_ps8_ViTs
-cp ./data/cp_CNN_final.csv celldino_ps8_ViTs
+mkdir ${exp_name}_output
+mv celldino_ps8_ViTs ./${exp_name}_output
 
 cd 05-moa-classification
-mv model ../output
-
+mv model ../${exp_name}_output
 cd ..
-zip -r $exp_name output
-rm -rf output
+
+zip -r $exp_name ${exp_name}_output
+cp $exp_name.zip /scratch/appillai/feat_eval_outputs
+rm -rf /scratch/appillai/$exp_name
