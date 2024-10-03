@@ -1,7 +1,13 @@
 universe = docker
 docker_image = docker://adipill04/pipeline:3
 
-executable=./train.sh
+executable=./eval.sh
+
+exp_name = exp_name_inject
+feat_name = feat_name_inject
+model_name = model_name_inject
+
+environment = "exp_name=$(exp_name) feat_name=$(feat_name) model_name=$(model_name)"
 
 output = gpu-chtc_$(Cluster).out
 error = gpu-chtc_$(Cluster).err
@@ -9,15 +15,15 @@ log = gpu-chtc_$(Cluster).log
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-
-#ensure this value == exp_name (train.sh)
-transfer_output_files = /scratch/appillai/cell-painting-devbench1/LINCS/test1.zip 
+transfer_input_files = 01-feature-extraction.py,02-lincs-well-aggregation-sphering-vits.py,03-align-cellprofiler-profiles.py,04-train-test-split.py,06-moa-predictions-visualization.py
+transfer_output_files = /scratch/appillai/feat_eval_outputs/$(exp_name).zip, /scratch/appillai/features/$(feat_name), #maybe add weights return here
 
 +wantGPULab = True
 request_cpus = 10
 request_gpus = 1
-request_memory = 50GB
+request_memory = 25GB
 request_disk = 150GB
 requirements = (Machine == "jcaicedogpu0000.chtc.wisc.edu")
 
 queue
+
