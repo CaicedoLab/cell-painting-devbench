@@ -1,0 +1,22 @@
+universe = docker
+docker_image = docker://adipill04/pipeline:3
+
+executable=./extract.sh
+
+output = gpu-chtc_$(Cluster).out
+error = gpu-chtc_$(Cluster).err
+log = gpu-chtc_$(Cluster).log
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = extract_features.py
+transfer_output_files = 02env.sh
+
++wantGPULab = True
+request_cpus = 10
+request_gpus = 1
+request_memory = 50GB
+request_disk = 150GB
+requirements = (Machine == "jcaicedogpu0000.chtc.wisc.edu")
+
+queue
