@@ -1,0 +1,10 @@
+#all input output for jobs in respective /scratch subdirectories
+
+JOB A train.sub
+JOB B extract.sub
+SCRIPT POST B injectEval.sh
+ 
+JOB C evalInject.sub
+
+PARENT A CHILD B
+PARENT B CHILD C

@@ -1,5 +1,5 @@
 universe = docker
-docker_image = docker://adipill04/pipeline:3
+docker_image = docker://adipill04/pipeline:eval4
 
 executable=./eval.sh
 
@@ -15,8 +15,8 @@ log = gpu-chtc_$(Cluster).log
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = 01-feature-extraction.py,02-lincs-well-aggregation-sphering-vits.py,03-align-cellprofiler-profiles.py,04-train-test-split.py,06-moa-predictions-visualization.py
-transfer_output_files = /scratch/appillai/feat_eval_outputs/$(exp_name).zip, /scratch/appillai/features/$(feat_name), #maybe add weights return here
+transfer_input_files = 01-feature-extraction.py,02-lincs-well-aggregation-sphering-vits.py,03-align-cellprofiler-profiles.py,04-train-test-split.py,06-moa-predictions-visualization.py,run_models.sh
+transfer_output_files = /scratch/appillai/feat_eval_outputs/$(exp_name).zip
 
 +wantGPULab = True
 request_cpus = 10
@@ -26,4 +26,3 @@ request_disk = 150GB
 requirements = (Machine == "jcaicedogpu0000.chtc.wisc.edu")
 
 queue
-

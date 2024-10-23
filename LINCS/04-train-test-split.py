@@ -55,7 +55,8 @@ def save_to_csv(df, path, file_name, compress=None):
 
     df.to_csv(os.path.join(path, file_name), index=False, compression=compress)
 
-# cp /scr/data/LINCS-DINO/data/cp_CNN_final.csv ./celldino_ps8_ViTs
+#cp /scr/data/LINCS-DINO/data/cp_CNN_final.csv ./celldino_ps8_ViTs
+
 cp_data_path = 'celldino_ps8_ViTs/'
 cpd_split_path = 'celldino_ps8_ViTs/'
 
@@ -159,6 +160,3 @@ save_to_csv(df_dino_trn_shuf,  "celldino_ps8_ViTs/model_data/",
 save_to_csv(df_dino_tst_shuf,  "celldino_ps8_ViTs/model_data/",
             f'test_shuffle_data{file_dino}.csv.gz', compress="gzip")
 save_to_csv(df_moa_targets, "celldino_ps8_ViTs/model_data/", f'target_labels_final.csv')
-
-
-                                                                                          

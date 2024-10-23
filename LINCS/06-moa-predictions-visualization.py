@@ -177,7 +177,7 @@ def rename_col_values(df, model_name_dict):
     """Rename unique column values"""
     df['metrics'] = df['metrics'].map({'pr_auc_score': 'Precision-Recall_AUC', 'roc_auc_score': 'ROC_AUC'})
     df['model'] = df['model'].map(model_name_dict)
-    df['profile_tech'] = df['profile_tech'].map({'L1000':'L1000','ViTS':'celldino_from_dinov2_vitl', 'CellProfiler': "Cell Profiler", 'CP-CNN':'Cell Painting CNN', 'ViTB':'DINO_ViT_Base'})
+    df['profile_tech'] = df['profile_tech'].map({'L1000':'L1000','ViTS': os.environ['model_name'], 'CellProfiler': "Cell Profiler", 'CP-CNN':'Cell Painting CNN', 'ViTB':'DINO_ViT_Base'})
     return df
 
 df_score_normal = rename_col_values(df_score_normal, normal_model_names)
@@ -232,7 +232,7 @@ plot_model_predictions(df_pr_auc_normal, pr_baseline, "pr_auc_all_assays.png")
 print(df_pr_auc_normal)
 
 plot_model_predictions(df_pr_auc_shuffle, pr_baseline, "pr_auc_all_assays_wrong_labels.png", txt_cord_y = 0.46,
- title_label="Precision-Recall AUC score for all models (Trained on wrong MOA labels)")
+                       title_label="Precision-Recall AUC score for all models (Trained on wrong MOA labels)")
 
 plot_model_predictions(df_roc_normal, 50, "roc_auc_all_assays.png", txt_cord_y = 51, y_label= "ROC-AUC %", title_label="ROC-AUC score for all models")
 
@@ -287,6 +287,7 @@ def get_metric_preds(df_cp, df_cp_cellpro, df_cp_CNN):
     # df_pr_L1 = df_L1[df_L1['metrics'] == 'pr_auc_score'].copy()
     # df_pr_cp_L1 = df_cp_L1[df_cp_L1['metrics'] == 'pr_auc_score'].copy()
     return df_pr_cp, df_pr_cp_cellpro, df_pr_cp_CNN
+
 df_pr_cp_preds, df_pr_cp_preds_cellpro, df_pr_cp_preds_CNN = get_metric_preds(df_moa_cp_preds,
                                                                               df_moa_cp_preds_cellpro,
                                                                               df_moa_cp_preds_CNN)
@@ -387,14 +388,14 @@ def plot_moa_predictions(df, file_name, col_x, col_y, x_label, y_label, title_la
   plt.savefig(os.path.join(path, file_name))
   plt.show()
 
-plot_moa_predictions(df_moa_prs,
-                     'pr_auc_moas_celldino_from_dinov2_vitl_vs_Cell_Profiler.png',
-                     'ViTS_values',
-                     'cell_profiler_values',
-                     "DINO-ViTs PR-AUC scores",
-                     "Cell Profiler PR-AUC scores",
-                     "PR-AUC scores for MOAs in DINO ViTs & Cell Profiler",
-                     moa_cp_baseline,
+plot_moa_predictions(df_moa_prs, 
+                     'pr_auc_moas_celldino_from_dinov2_vitl_vs_Cell_Profiler.png', 
+                     'ViTS_values', 
+                     'cell_profiler_values', 
+                     "DINO-ViTs PR-AUC scores", 
+                     "Cell Profiler PR-AUC scores", 
+                     "PR-AUC scores for MOAs in DINO ViTs & Cell Profiler", 
+                     moa_cp_baseline, 
                      moa_cp_baseline_cellpro)
 plot_moa_predictions(df_moa_prs,
                      'pr_auc_moas_Cell_Painting_CNN_vs_Cell_Profiler.png',
@@ -405,6 +406,7 @@ plot_moa_predictions(df_moa_prs,
                      "PR-AUC scores for MOAs in Cell Painting CNN & Cell Profiler",
                      moa_cp_baseline_CNN,
                      moa_cp_baseline_cellpro)
+
 plot_moa_predictions(df_moa_prs,
                      'pr_auc_moas_celldino_from_dinov2_vitl_vs_Cell_Painting_CNN.png',
                      'ViTS_values',
@@ -414,3 +416,5 @@ plot_moa_predictions(df_moa_prs,
                      "PR-AUC scores for MOAs in DINO ViT-base & Cell Profiler",
                      moa_cp_baseline,
                      moa_cp_baseline_CNN)
+
+

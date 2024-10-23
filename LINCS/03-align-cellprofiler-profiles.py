@@ -57,6 +57,7 @@ print(len(df_dino['Treatment_Clean'].unique()))
 # Filter for only max dose
 idx = df_cellprofiler.groupby(['broad_id'])['Metadata_dose_recode'].transform(max) == \
         df_cellprofiler['Metadata_dose_recode']
+
 df_cellprofiler = df_cellprofiler[idx]
 
 print(df_cellprofiler.shape)
@@ -224,7 +225,7 @@ def save_to_csv(df, path, file_name, compress=None):
 
     if not os.path.exists(path):
         os.mkdir(path)
+
     df.to_csv(os.path.join(path, file_name), index=False, compression=compress)
 
 save_to_csv(df_pert_cpds_moas, "celldino_ps8_ViTs", 'split_moas_cpds_celldino_ps8_ViTs_final.csv')
-                                                                                                                             

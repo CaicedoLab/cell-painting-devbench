@@ -20,18 +20,19 @@ sys.path.append("../profiling/")
 import norm
 
 output_folder = './celldino_ps8_ViTs'
+os.system(f'mkdir {output_folder}')
+os.system(f'cp /scratch/appillai/data/cp_CNN_final.csv ./{output_folder}')
 output_file = "well_level_profiles_vits_celldino_ps8.csv"
 REG_PARAM = 1e-5
 
 # Load metadata
-meta = pd.read_csv("../../data/sc-metadata.csv")
+meta = pd.read_csv("/scratch/appillai/datasets/max_concentration_set/cs_sample1k.csv")
 
 import torch
 from sklearn.preprocessing import StandardScaler
 
 # Define the feature file path
-#feature_path = '/scr/data/LINCS-DINO/meta_features/ViTs/LINCS_celldino_ps8_features.pth'
-feature_path = '../../data/nikita_features_all_lincs.npz'
+feature_path = os.environ['feat_name']
 # Load the .pth file into a tensor
 features = np.load(feature_path)
 
