@@ -6,8 +6,7 @@ mkdir $exp_name
 cp -r cell-painting-devbench ./$exp_name
 cp -r data ./$exp_name/cell-painting-devbench/LINCS
 cd ./$exp_name/cell-painting-devbench/LINCS
-mv $job_dir/*.py ./
-mv $job_dir/run_models.sh ./05-moa-classification
+mv $job_dir/*.py $job_dir/05-moa-classification ./
 cp /scratch/appillai/features/$feat_name ./
 
 python 02-lincs-well-aggregation-sphering-vits.py
