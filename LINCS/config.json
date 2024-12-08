@@ -6,4 +6,5 @@
   "output_folder":"./celldino_ps8_ViTs",
   "output_file":"well_level_profiles_vits_celldino_ps8.csv",
   "raw_features_file": "Wells_Prewhitened_ViT_large_LINCS.csv"
+  "split_moas_output": "split_moas_cpds_celldino_ps8_ViTs_final.csv"
 }
