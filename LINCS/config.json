@@ -1,0 +1,9 @@
+{
+  "lincs_single_cell_metadata":"/scratch/appillai/datasets/max_concentration_set/cs_sample1k.csv",
+  "baseline_results_folder":"/scratch/appillai/data/",
+  "feature_path":"",
+  "sphering_regularization":1e-5,
+  "output_folder":"./celldino_ps8_ViTs",
+  "output_file":"well_level_profiles_vits_celldino_ps8.csv",
+  "raw_features_file": "Wells_Prewhitened_ViT_large_LINCS.csv"
+}
