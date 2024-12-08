@@ -22,33 +22,18 @@ conda activate newenv
 ### 3. Install Required Packages
 Install the necessary Python packages using `conda`:
 ```
-conda install tensorflow numpy pandas matplotlib
-```
-If you encounter version conflicts, update conda:
-```
+conda install numpy pandas matplotlib
 conda update -n base -c defaults conda  
 ```
-If you still encounter issues with missing modules, install the packages using `pip`:
+Install the following packages using `pip`:
 ``` 
-pip install scikit-learn pandas numpy iterative-stratification
-```
-
-### 4. Install TensorFlow and GPU Setup
-Verify your GPU setup (if applicable):
-```
-nvidia-smi
-```
-Upgrade `pip` and reinstall TensorFlow based on your setup:
-```
 pip install --upgrade pip
-
-# For GPU users
-pip install tensorflow[and-cuda]
-
-# For CPU users(prefer this)
-pip install tensorflow
+pip install scikit-learn pandas numpy iterative-stratification
+pip install scikit-image tqdm seaborn adjustText
 ```
-If you encounter errors related to `tensorflow.keras`, reinstall TensorFlow with a specific version:
+
+### 4. Install TensorFlow
+The code in this benchmark requires TensorFlow 2.12. We recommed using the CPU version of the package to prevent issues with GPU drivers because TF 2.12 is an old version.
 ```
 pip uninstall keras
 pip uninstall tensorflow

@@ -26,7 +26,7 @@ with open(args.config) as f:
 # Copy well level profiles to '../source_data'
 # Load Data file for Our Experiment
 df_dino = pd.read_csv(f"{config['output_folder']}/{config['output_file']}")
-df_CNN = pd.read_csv('data/cp_CNN_final.csv')
+df_CNN = pd.read_csv(f'{config["output_folder"]}/cp_CNN.csv')
 print("Input features shape:", df_dino.shape)
 
 if not os.path.exists("cp_level4_cpd_replicates.csv.gz"):
@@ -45,8 +45,8 @@ print("CellProfiler features shape", df_cellprofiler.shape)
 # Exclude DMSO
 df_dino = df_dino[df_dino['Treatment'] != 'DMSO@NA'].reset_index(drop=True)
 
-#df_CNN = df_CNN[df_CNN['Treatment'] != 'DMSO@NA'].reset_index(drop=True)
-#df_CNN["Treatment_Clean"] = df_CNN["broad_sample"].apply(lambda x: '-'.join(x.split('-')[:2]))
+df_CNN = df_CNN[df_CNN['Treatment'] != 'DMSO@NA'].reset_index(drop=True)
+df_CNN["Treatment_Clean"] = df_CNN["broad_sample"].apply(lambda x: '-'.join(x.split('-')[:2]))
 
 df_cellprofiler = df_cellprofiler[df_cellprofiler['broad_id'] != 'DMSO'].reset_index(drop=True)
 
@@ -60,11 +60,11 @@ print("Common treatments:", len(common_treatment))
 # Select rows with common treatments only
 df_cellprofiler = df_cellprofiler.loc[df_cellprofiler['broad_id'].isin(common_treatment)]
 df_dino = df_dino.loc[df_dino['Treatment_Clean'].isin(common_treatment)]
-# df_CNN = df_CNN.loc[df_CNN['Treatment_Clean'].isin(common_treatment)]
+df_CNN = df_CNN.loc[df_CNN['Treatment_Clean'].isin(common_treatment)]
 
 print("Unique treatments in CellProfiler metadata:", len(df_cellprofiler["broad_id"].unique()))
 print("Unique treatments in input data:", len(df_dino['Treatment_Clean'].unique()))
-#print(len(df_CNN["Treatment_Clean"].unique()))
+print("Unique treatments in CP-CNN",len(df_CNN["Treatment_Clean"].unique()))
 
 # Filter for only max dose
 idx = df_cellprofiler.groupby(['broad_id'])['Metadata_dose_recode'].transform(max) == \
@@ -84,7 +84,7 @@ df_cpds_moas.to_csv(f'{config["output_folder"]}/moa_annotation.csv', index=False
 
 # Concatenate moa for three datasets
 df_dino["moa"]= df_dino["Treatment_Clean"].map(cpds_moa)
-# df_CNN['moa'] = df_CNN['Treatment_Clean'].map(cpds_moa)
+df_CNN['moa'] = df_CNN['Treatment_Clean'].map(cpds_moa)
 
 print("CellProfiler unique MOAs:", len(df_cellprofiler["moa"].unique()),
         "Input data unique MOAs:", len(df_dino['moa'].unique()))
@@ -93,13 +93,13 @@ pertname = df_cellprofiler.drop_duplicates(['pert_iname','broad_id'])[['pert_ina
 pertname_dict = dict(zip(pertname['broad_id'], pertname['pert_iname']))
 
 df_dino['pert_iname'] = df_dino['Treatment_Clean'].map(pertname_dict)
-# df_CNN['pert_iname'] = df_CNN['Treatment_Clean'].map(pertname_dict)
+df_CNN['pert_iname'] = df_CNN['Treatment_Clean'].map(pertname_dict)
 
 #Save file to csv
 
-df_cellprofiler.to_csv(f"{config['output_folder']}/cp_cellprofiler_final.csv",index=False)
-df_dino.to_csv(f"{config['output_folder']}/cp_dino_final.csv",index=False)
-#df_CNN.to_csv(f"{out_dir}/cp_CNN_final.csv",index=False)
+df_cellprofiler.to_csv(f"{config['output_folder']}/cp_cellprofiler.csv",index=False)
+df_dino.to_csv(f"{config['output_folder']}/cp_dino.csv",index=False)
+df_CNN.to_csv(f"{config['output_folder']}/cp_CNN.csv",index=False)
 
 # create cpd name - moa dictionary
 df_cpds_moas = df_cellprofiler.drop_duplicates(['pert_iname','moa'])[['pert_iname','moa']]

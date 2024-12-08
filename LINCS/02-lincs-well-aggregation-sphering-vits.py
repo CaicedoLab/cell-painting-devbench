@@ -25,7 +25,7 @@ with open(args.config) as f:
     config = json.load(f)
 
 os.system(f'mkdir -p {config["output_folder"]}')
-os.system(f'cp {config["baseline_results_folder"]}/cp_CNN_final.csv {config["output_folder"]}')
+os.system(f'cp {config["baseline_results_folder"]}/cp_CNN_final.csv {config["output_folder"]}/cp_CNN.csv')
 
 # Load metadata
 meta = pd.read_csv(config["lincs_single_cell_metadata"])
