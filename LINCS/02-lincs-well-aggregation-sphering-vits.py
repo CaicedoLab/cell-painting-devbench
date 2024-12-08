@@ -13,11 +13,7 @@ import sys
 
 from tqdm import tqdm
 
-#sys.path.append("../profiling/")
-#import profiling
-
-sys.path.append("../profiling/")
-import norm
+import profiling
 
 output_folder = './celldino_ps8_ViTs'
 os.system(f'mkdir {output_folder}')
@@ -97,7 +93,7 @@ wells.to_csv(f"./{output_folder}/Wells_Prewhitened_ViT_large_LINCS.csv")
 
 sum(wells["Treatment"].isin(["DMSO@NA"]))
 
-whN = norm.WhiteningNormalizer(wells.loc[wells["Treatment"].isin(["DMSO@NA"]), columns2], REG_PARAM)
+whN = profiling.WhiteningNormalizer(wells.loc[wells["Treatment"].isin(["DMSO@NA"]), columns2], REG_PARAM)
 whD = whN.normalize(wells[columns2])
 
 # Save whitened profiles
