@@ -2,13 +2,26 @@ import os
 import requests
 import pickle
 import argparse
-import pandas as pd
-import numpy as np
-import re
-from os import walk
-from collections import Counter
+import json
 import random
 import shutil
+
+import pandas as pd
+import numpy as np
+
+from os import walk
+from collections import Counter
+
+# Load configuration values
+
+parser = argparse.ArgumentParser('Feature alignment')
+parser.add_argument('--config', type=str, required=True, help='path to config file')
+args = parser.parse_args()
+
+with open(args.config) as f:
+    config = json.load(f)
+
+## FUNCTIONS
 
 def create_targets(df, cols="moa", drop_dummy=True):
     """Create the binary multi-label targets for each compound"""
@@ -55,10 +68,7 @@ def save_to_csv(df, path, file_name, compress=None):
 
     df.to_csv(os.path.join(path, file_name), index=False, compression=compress)
 
-#cp /scr/data/LINCS-DINO/data/cp_CNN_final.csv ./celldino_ps8_ViTs
-
-cp_data_path = 'celldino_ps8_ViTs/'
-cpd_split_path = 'celldino_ps8_ViTs/'
+## MAIN PROCEDURE
 
 # file name of features
 file_cp = "_cellprofiler_final"
@@ -66,23 +76,23 @@ file_cnn = "_CNN_final"
 file_dino = "_dino_final"
 
 df_cellprofiler = pd.read_csv(
-    os.path.join(cp_data_path, f'cp{file_cp}.csv'),
+    os.path.join(config["output_folder"], f'cp{file_cp}.csv'),
     low_memory = False
 )
 
 df_cnn = pd.read_csv(
-    os.path.join(cp_data_path, f'cp{file_cnn}.csv'),
+    os.path.join(config["output_folder"], f'cp{file_cnn}.csv'),
     low_memory = False
 )
 
 df_dino = pd.read_csv(
-    os.path.join(cp_data_path, f'cp{file_dino}.csv'),
+    os.path.join(config["output_folder"], f'cp{file_dino}.csv'),
     low_memory = False
 )
 
 # print(df_cellprofiler.shape, df_cnn.shape, df_dino.shape)
 
-df_cpds_moas_lincs = pd.read_csv(os.path.join(cpd_split_path, f'split_moas_cpds_celldino_ps8_ViTs_final.csv'))
+df_cpds_moas_lincs = pd.read_csv(os.path.join(config["output_folder"], config["split_moas_output"]))
 
 print(df_cpds_moas_lincs.shape)
 print(len(df_cpds_moas_lincs.pert_iname.unique()))
@@ -136,27 +146,28 @@ df_cnn_tst_shuf = create_shuffle_data(df_cnn_tst, target_cols)
 
 df_dino_trn_shuf
 
-save_to_csv(df_cellprofiler_trn, "celldino_ps8_ViTs/model_data/", f'train_data{file_cp}.csv.gz', compress="gzip")
-save_to_csv(df_cellprofiler_tst, "celldino_ps8_ViTs/model_data/", f'test_data{file_cp}.csv.gz', compress="gzip")
+save_to_csv(df_cellprofiler_trn, f"{config['output_folder']}/model_data/", f'train_data{file_cp}.csv.gz', compress="gzip")
+save_to_csv(df_cellprofiler_tst, f"{config['output_folder']}/model_data/", f'test_data{file_cp}.csv.gz', compress="gzip")
 
-save_to_csv(df_cnn_trn, "celldino_ps8_ViTs/model_data/", f'train_data{file_cnn}.csv.gz', compress="gzip")
-save_to_csv(df_cnn_tst, "celldino_ps8_ViTs/model_data/", f'test_data{file_cnn}.csv.gz', compress="gzip")
+save_to_csv(df_cnn_trn, f"{config['output_folder']}/model_data/", f'train_data{file_cnn}.csv.gz', compress="gzip")
+save_to_csv(df_cnn_tst, f"{config['output_folder']}/model_data/", f'test_data{file_cnn}.csv.gz', compress="gzip")
 
-save_to_csv(df_dino_trn, "celldino_ps8_ViTs/model_data/", f'train_data{file_dino}.csv.gz', compress="gzip")
-save_to_csv(df_dino_tst, "celldino_ps8_ViTs/model_data/", f'test_data{file_dino}.csv.gz', compress="gzip")
+save_to_csv(df_dino_trn, f"{config['output_folder']}/model_data/", f'train_data{file_dino}.csv.gz', compress="gzip")
+save_to_csv(df_dino_tst, f"{config['output_folder']}/model_data/", f'test_data{file_dino}.csv.gz', compress="gzip")
 
-save_to_csv(df_cellprofiler_trn_shuf, "celldino_ps8_ViTs/model_data/",
+save_to_csv(df_cellprofiler_trn_shuf, f"{config['output_folder']}/model_data/",
             f'train_shuffle_data{file_cp}.csv.gz', compress="gzip")
-save_to_csv(df_cellprofiler_tst_shuf, "celldino_ps8_ViTs/model_data/",
+save_to_csv(df_cellprofiler_tst_shuf, f"{config['output_folder']}/model_data/",
             f'test_shuffle_data{file_cp}.csv.gz', compress="gzip")
 
-save_to_csv(df_cnn_trn_shuf,  "celldino_ps8_ViTs/model_data/",
+save_to_csv(df_cnn_trn_shuf,  f"{config['output_folder']}/model_data/",
             f'train_shuffle_data{file_cnn}.csv.gz', compress="gzip")
-save_to_csv(df_cnn_tst_shuf,  "celldino_ps8_ViTs/model_data/",
+save_to_csv(df_cnn_tst_shuf,  f"{config['output_folder']}/model_data/",
             f'test_shuffle_data{file_cnn}.csv.gz', compress="gzip")
 
-save_to_csv(df_dino_trn_shuf,  "celldino_ps8_ViTs/model_data/",
+save_to_csv(df_dino_trn_shuf,  f"{config['output_folder']}/model_data/",
             f'train_shuffle_data{file_dino}.csv.gz', compress="gzip")
-save_to_csv(df_dino_tst_shuf,  "celldino_ps8_ViTs/model_data/",
+save_to_csv(df_dino_tst_shuf,  f"{config['output_folder']}/model_data/",
             f'test_shuffle_data{file_dino}.csv.gz', compress="gzip")
-save_to_csv(df_moa_targets, "celldino_ps8_ViTs/model_data/", f'target_labels_final.csv')
+save_to_csv(df_moa_targets, f"{config['output_folder']}/model_data/", f'target_labels_final.csv')
+
