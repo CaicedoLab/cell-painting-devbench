@@ -26,3 +26,4 @@ echo "STEP 5 - Train models"
 python 05-moa-classification.py --config $CONFIG
 
 echo "STEP 6 - Evaluate performance"
+python 06-moa-predictions-visualization.py --config $CONFIG
