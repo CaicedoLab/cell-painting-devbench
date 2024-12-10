@@ -12,7 +12,7 @@ import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
 from sklearn.preprocessing import StandardScaler
-
+sys.path.append("../utils/")
 import profiling
 
 # Load configuration values
