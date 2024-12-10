@@ -36,8 +36,8 @@ if config["feature_path"].endswith("npz"):
     print("Loading features")
     features = np.load(config["feature_path"])
     features = features['features']
-    print("Standardize features")
-    features = StandardScaler().fit_transform(features)
+    #print("Standardize features")
+    #features = StandardScaler().fit_transform(features)
 elif config["feature_path"].endswith("pth"):
     print("Loading features")
     f = torch.load(config["feature_path"])

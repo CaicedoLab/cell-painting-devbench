@@ -6,6 +6,7 @@ import os
 
 parser = argparse.ArgumentParser('MOA classification')
 parser.add_argument('--config', type=str, required=True, help='path to config file')
+parser.add_argument('--repeat', default=False, action='store_true', help='repeat experiment only for input features')
 args = parser.parse_args()
 
 with open(args.config) as f:
@@ -27,7 +28,10 @@ cp_data_dir = config["output_folder"] + "/model_data"
 model_pred_dir = config["output_folder"] + "/predictions/"
 features = ["cellprofiler", "CNN", "dino"]
 
-for f in features:
-    experiment(cp_data_dir, f, model_pred_dir, shuffle=False)
-    experiment(cp_data_dir, f, model_pred_dir, shuffle=True)
+if args.repeat:
+    experiment(cp_data_dir, "dino", model_pred_dir, shuffle=False)
+else:
+    for f in features:
+        experiment(cp_data_dir, f, model_pred_dir, shuffle=False)
+        experiment(cp_data_dir, f, model_pred_dir, shuffle=True)
 
