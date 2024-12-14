@@ -29,6 +29,10 @@ model_pred_dir = config["output_folder"] + "/predictions/"
 features = ["cellprofiler", "CNN", "dino"]
 
 if args.repeat:
+    repeats = len([x for x in os.listdir(model_pred_dir) if x.find("all_performance_metrics_resnet") != -1])
+    repeats = str(repeats).zfill(3)
+    os.system(f"mv {model_pred_dir}/all_performance_metrics_resnet.csv {model_pred_dir}/all_performance_metrics_resnet.{repeats}.csv")
+    os.system(f"mv {model_pred_dir}/moa_precision_recall_resnet.csv {model_pred_dir}/moa_precision_recall_resnet.{repeats}.csv")
     experiment(cp_data_dir, "dino", model_pred_dir, shuffle=False)
 else:
     for f in features:
