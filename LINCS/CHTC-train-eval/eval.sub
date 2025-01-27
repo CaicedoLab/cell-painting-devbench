@@ -1,7 +1,7 @@
 universe = docker
 docker_image = docker://adipill04/pipeline:eval4
 
-executable=./eval.sh
+executable=./run_all.sh
 
 exp_name = exp_name_inject
 feat_name = feat_name_inject
@@ -9,13 +9,16 @@ model_name = model_name_inject
 
 environment = "exp_name=$(exp_name) feat_name=$(feat_name) model_name=$(model_name)"
 
+arguments=config.json
+
 output = gpu-chtc_$(Cluster).out
 error = gpu-chtc_$(Cluster).err
 log = gpu-chtc_$(Cluster).log
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = pipeline_scripts/01-feature-extraction.py,pipeline_scripts/02-lincs-well-aggregation-sphering-vits.py,pipeline_scripts/03-align-cellprofiler-profiles.py,pipeline_scripts/04-train-test-split.py,pipeline_scripts/06-moa-predictions-visualization.py,pipeline_scripts/05-moa-classification/
+transfer_input_files = config.json,pipeline_scripts/01-feature-extraction.py,pipeline_scripts/02-lincs-well-aggregation-sphering-vits.py,pipeline_scripts/03-align-cellprofiler-profiles.py,pipeline_scripts/04-train-test-split.py,pipeline_scripts/06-moa-predictions-visualization.py,pipeline_scripts/05-moa-classification.py,pipeline_scripts/moa-classification,pipeline_scripts/utils
+
 transfer_output_files = /scratch/appillai/feat_eval_outputs/$(exp_name).zip
 
 +wantGPULab = True
@@ -23,6 +26,6 @@ request_cpus = 10
 request_gpus = 1
 request_memory = 25GB
 request_disk = 150GB
-requirements = (Machine == "jcaicedogpu0000.chtc.wisc.edu")
+requirements = (Machine == "jcaicedogpu0001.chtc.wisc.edu")
 
 queue

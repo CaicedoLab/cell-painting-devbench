@@ -1,45 +1,52 @@
+import argparse
+import json
 import os
 import pathlib
+import random
+
 import pandas as pd
 import numpy as np
-from collections import defaultdict
 import matplotlib.pyplot as plt
-#%matplotlib inline
 import seaborn as sns
-from statistics import median
-import random
 sns.set_context("talk")
 sns.set_style("darkgrid")
-from collections import Counter
 
+from collections import Counter
+from statistics import median
+from collections import defaultdict
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import precision_recall_curve,average_precision_score
 from sklearn.metrics import log_loss, roc_curve
 from sklearn.metrics import auc
-
 from adjustText import adjust_text
 
+# Load configuration values
+
+parser = argparse.ArgumentParser('Performance evaluation')
+parser.add_argument('--config', type=str, required=True, help='path to config file')
+args = parser.parse_args()
+
+with open(args.config) as f:
+    config = json.load(f)
+
+
+# Main procedure
 drop_bortezomib_from_test = True
 
-base_dir = pathlib.Path("celldino_ps8_ViTs/model_data")
 
-file_dino = "_dino_final"
-file_cp = "_cellprofiler_final"
-file_cnn = "_CNN_final"
+file_dino = "_dino"
+file_cp = "_cellprofiler"
+file_cnn = "_CNN"
 
-cp_data_dir = pathlib.Path(f"{base_dir}/")
+cp_test_cellpro = f"{config['output_folder']}/model_data/test_data{file_cp}.csv.gz"
+cp_test_CNN = f"{config['output_folder']}/model_data/test_data{file_cnn}.csv.gz"
+cp_test_dino = f"{config['output_folder']}/model_data/test_data{file_dino}.csv.gz"
 
-cp_test_cellpro = f"{cp_data_dir}/test_data{file_cp}.csv.gz"
-cp_test_CNN = f"{cp_data_dir}/test_data{file_cnn}.csv.gz"
-cp_test_dino = f"{cp_data_dir}/test_data{file_dino}.csv.gz"
+model_preds_cp = pathlib.Path(f"{config['output_folder']}/predictions/cellprofiler/")
+model_preds_CNN = pathlib.Path(f"{config['output_folder']}/predictions/CNN/")
+model_preds_dino = pathlib.Path(f"{config['output_folder']}/predictions/dino/")
 
-result_dir = '05-moa-classification/model/predictions'
-
-model_preds_cp = pathlib.Path(f"{result_dir}/cellprofiler/")
-model_preds_CNN = pathlib.Path(f"{result_dir}/cnn/")
-model_preds_dino = pathlib.Path(f"{result_dir}/dino/")
-
-model_preds_figures = pathlib.Path(f"{result_dir}/figures")
+model_preds_figures = pathlib.Path(f"{config['output_folder']}/figures")
 
 df_cp_test_cellpro = pd.read_csv(cp_test_cellpro, compression='gzip',low_memory = False)
 df_cp_test_CNN = pd.read_csv(cp_test_CNN, compression='gzip',low_memory = False)
@@ -71,7 +78,7 @@ if drop_bortezomib_from_test:
     df_cp_resnet_test_CNN = df_cp_resnet_test_CNN.iloc[df_cp_test_CNN.index, :]
 
 ##resnet shuffle
-df_cp_resnet_shuf = pd.read_csv(os.path.join(model_preds_dino,
+df_cp_resnet_shuf = pd.read_csv(os.path.join(model_preds_dino, 
                                              'cp_test_pathway_preds_resnet_shuffle.csv'))
 df_cp_resnet_shuf_cellpro = pd.read_csv(os.path.join(model_preds_cp,
                                                      'cp_test_pathway_preds_resnet_shuffle.csv'))
@@ -177,7 +184,7 @@ def rename_col_values(df, model_name_dict):
     """Rename unique column values"""
     df['metrics'] = df['metrics'].map({'pr_auc_score': 'Precision-Recall_AUC', 'roc_auc_score': 'ROC_AUC'})
     df['model'] = df['model'].map(model_name_dict)
-    df['profile_tech'] = df['profile_tech'].map({'L1000':'L1000','ViTS': os.environ['model_name'], 'CellProfiler': "Cell Profiler", 'CP-CNN':'Cell Painting CNN', 'ViTB':'DINO_ViT_Base'})
+    df['profile_tech'] = df['profile_tech'].map({'L1000':'L1000','ViTS': config['experiment_name'], 'CellProfiler': "Cell Profiler", 'CP-CNN':'Cell Painting CNN', 'ViTB':'DINO_ViT_Base'})
     return df
 
 df_score_normal = rename_col_values(df_score_normal, normal_model_names)
@@ -200,7 +207,7 @@ full_results_df = pd.concat([
     df_roc_shuffle.assign(shuffle=True)
 ])
 
-output_file = pathlib.Path(f"{result_dir}/all_performance_metrics_resnet_final_v3.csv")
+output_file = pathlib.Path(f"{config['output_folder']}/predictions/all_performance_metrics_resnet.csv")
 full_results_df.to_csv(output_file, index=False)
 
 print(full_results_df.shape)
@@ -364,7 +371,7 @@ df_moa_prs = pd.merge(df_moa_prs, df_moa_pr_cp_CNN, on='moa')
 df_moa_prs.head(20)
 
 # Output individual MOA Precision Recall
-output_file = pathlib.Path(f"{result_dir}/moa_precision_recall_resnet_final_v3.csv")
+output_file = pathlib.Path(f"{config['output_folder']}/predictions/moa_precision_recall_resnet.csv")
 df_moa_prs.to_csv(output_file, index=False)
 
 def plot_moa_predictions(df, file_name, col_x, col_y, x_label, y_label, title_label, baseline_x, baseline_y, path=model_preds_figures):

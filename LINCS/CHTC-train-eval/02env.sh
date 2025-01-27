@@ -1,3 +1,3 @@
-export exp_name=node1
-export feat_name=sample1k.npz
+export exp_name=test_pipeline
+export feat_name=dino_balancing.npz
 export model_name=cellpainting_dinov2

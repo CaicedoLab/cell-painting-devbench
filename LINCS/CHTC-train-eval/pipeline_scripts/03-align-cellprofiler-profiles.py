@@ -1,25 +1,37 @@
 import os
+import re
 import pathlib
 import requests
 import pickle
 import argparse
-import pandas as pd
-import numpy as np
-import re
-from os import walk
-from collections import Counter
+import json
 import random
 import shutil
-#import split_compounds 
-##import split_cpds_moas
+
+import pandas as pd
+import numpy as np
+
+from os import walk
+from collections import Counter
+
+# Load configuration values
+
+parser = argparse.ArgumentParser('Feature alignment')
+parser.add_argument('--config', type=str, required=True, help='path to config file')
+args = parser.parse_args()
+
+with open(args.config) as f:
+    config = json.load(f)
 
 # Copy well level profiles to '../source_data'
 # Load Data file for Our Experiment
-df_dino = pd.read_csv("celldino_ps8_ViTs/well_level_profiles_vits_celldino_ps8.csv")
-df_CNN = pd.read_csv('data/well_level_profiles_cpcnn_LINCS_1e-5_final.csv')
-print(df_dino.shape)
+df_dino = pd.read_csv(f"{config['output_folder']}/{config['output_file']}")
+df_CNN = pd.read_csv(f'{config["output_folder"]}/cp_CNN.csv')
+print("Input features shape:", df_dino.shape)
 
-os.system("wget https://github.com/broadinstitute/lincs-profiling-complementarity/raw/master/1.Data-exploration/Profiles_level4/cell_painting/cellpainting_lvl4_cpd_replicate_datasets/cp_level4_cpd_replicates.csv.gz")
+if not os.path.exists("cp_level4_cpd_replicates.csv.gz"):
+    print("Downloading CellProfiler aggregated features")
+    os.system("wget https://github.com/broadinstitute/lincs-profiling-complementarity/raw/master/1.Data-exploration/Profiles_level4/cell_painting/cellpainting_lvl4_cpd_replicate_datasets/cp_level4_cpd_replicates.csv.gz")
 
 # Load CellProfiler's datafile
 
@@ -28,31 +40,31 @@ df_cellprofiler = pd.read_csv('cp_level4_cpd_replicates.csv.gz',
     compression='gzip',
     low_memory = False
 )
-print(df_cellprofiler.shape)
+print("CellProfiler features shape", df_cellprofiler.shape)
 
 # Exclude DMSO
 df_dino = df_dino[df_dino['Treatment'] != 'DMSO@NA'].reset_index(drop=True)
 
-#df_CNN = df_CNN[df_CNN['Treatment'] != 'DMSO@NA'].reset_index(drop=True)
-#df_CNN["Treatment_Clean"] = df_CNN["broad_sample"].apply(lambda x: '-'.join(x.split('-')[:2]))
+df_CNN = df_CNN[df_CNN['Treatment'] != 'DMSO@NA'].reset_index(drop=True)
+df_CNN["Treatment_Clean"] = df_CNN["broad_sample"].apply(lambda x: '-'.join(x.split('-')[:2]))
 
 df_cellprofiler = df_cellprofiler[df_cellprofiler['broad_id'] != 'DMSO'].reset_index(drop=True)
 
-print(df_dino.shape, df_cellprofiler.shape)
+print("Input features:",df_dino.shape, "CellProfiler features:", df_cellprofiler.shape)
 
 common_treatment = list(set(df_dino["Treatment_Clean"].unique())
                         & set(df_cellprofiler["broad_id"].unique()))
 
-len(common_treatment)
+print("Common treatments:", len(common_treatment))
 
 # Select rows with common treatments only
 df_cellprofiler = df_cellprofiler.loc[df_cellprofiler['broad_id'].isin(common_treatment)]
 df_dino = df_dino.loc[df_dino['Treatment_Clean'].isin(common_treatment)]
-# df_CNN = df_CNN.loc[df_CNN['Treatment_Clean'].isin(common_treatment)]
+df_CNN = df_CNN.loc[df_CNN['Treatment_Clean'].isin(common_treatment)]
 
-print(len(df_cellprofiler["broad_id"].unique()))
-print(len(df_dino['Treatment_Clean'].unique()))
-#print(len(df_CNN["Treatment_Clean"].unique()))
+print("Unique treatments in CellProfiler metadata:", len(df_cellprofiler["broad_id"].unique()))
+print("Unique treatments in input data:", len(df_dino['Treatment_Clean'].unique()))
+print("Unique treatments in CP-CNN",len(df_CNN["Treatment_Clean"].unique()))
 
 # Filter for only max dose
 idx = df_cellprofiler.groupby(['broad_id'])['Metadata_dose_recode'].transform(max) == \
@@ -60,44 +72,39 @@ idx = df_cellprofiler.groupby(['broad_id'])['Metadata_dose_recode'].transform(ma
 
 df_cellprofiler = df_cellprofiler[idx]
 
-print(df_cellprofiler.shape)
-print(df_dino.shape)
-# print(df_CNN.shape)
-
 # Convert moa annotation to lower case
 df_cellprofiler['moa'] = df_cellprofiler['moa'].apply(lambda x: x.lower())
 
 # Create moa-compound dictionary
 df_cpds_moas = df_cellprofiler.drop_duplicates(['broad_id','moa'])[['broad_id','moa']]
 cpds_moa = dict(zip(df_cpds_moas['broad_id'], df_cpds_moas['moa']))
-len(cpds_moa)
+print("Compounds with MOA annotation:", len(cpds_moa))
 
-df_cpds_moas.to_csv('celldino_ps8_ViTs/moa_annotation.csv', index=False)
+df_cpds_moas.to_csv(f'{config["output_folder"]}/moa_annotation.csv', index=False)
 
 # Concatenate moa for three datasets
 df_dino["moa"]= df_dino["Treatment_Clean"].map(cpds_moa)
-# df_CNN['moa'] = df_CNN['Treatment_Clean'].map(cpds_moa)
+df_CNN['moa'] = df_CNN['Treatment_Clean'].map(cpds_moa)
 
-print(len(df_cellprofiler["moa"].unique()),
-      len(df_dino['moa'].unique()))
+print("CellProfiler unique MOAs:", len(df_cellprofiler["moa"].unique()),
+        "Input data unique MOAs:", len(df_dino['moa'].unique()))
 # Add compound name 'pert_iname' for dino and cpcnn features
 pertname = df_cellprofiler.drop_duplicates(['pert_iname','broad_id'])[['pert_iname','broad_id']]
 pertname_dict = dict(zip(pertname['broad_id'], pertname['pert_iname']))
 
 df_dino['pert_iname'] = df_dino['Treatment_Clean'].map(pertname_dict)
-# df_CNN['pert_iname'] = df_CNN['Treatment_Clean'].map(pertname_dict)
+df_CNN['pert_iname'] = df_CNN['Treatment_Clean'].map(pertname_dict)
 
 #Save file to csv
-out_dir = 'celldino_ps8_ViTs'
 
-df_cellprofiler.to_csv(f"{out_dir}/cp_cellprofiler_final.csv",index=False)
-df_dino.to_csv(f"{out_dir}/cp_dino_final.csv",index=False)
-#df_CNN.to_csv(f"{out_dir}/cp_CNN_final.csv",index=False)
+df_cellprofiler.to_csv(f"{config['output_folder']}/cp_cellprofiler.csv",index=False)
+df_dino.to_csv(f"{config['output_folder']}/cp_dino.csv",index=False)
+df_CNN.to_csv(f"{config['output_folder']}/cp_CNN.csv",index=False)
 
 # create cpd name - moa dictionary
 df_cpds_moas = df_cellprofiler.drop_duplicates(['pert_iname','moa'])[['pert_iname','moa']]
 cpds_moa = dict(zip(df_cpds_moas['pert_iname'], df_cpds_moas['moa']))
-len(cpds_moa)
+print("Compounds / MOAs:",len(cpds_moa))
 
 def sort_moas(cpds_moa):
     """
@@ -187,9 +194,8 @@ def split_cpds_moas(cpd_moas_dict, train_ratio=0.8, test_ratio=0.2):
     return df
 
 df_pert_cpds_moas = split_cpds_moas(cpds_moa)
-df_pert_cpds_moas
 
-len(df_pert_cpds_moas[df_pert_cpds_moas['test']]['pert_iname'].unique()) ##moas in the test data
+print("MOAs in the test data:", len(df_pert_cpds_moas[df_pert_cpds_moas['test']]['pert_iname'].unique()))
 
 def get_moa_count(df):
     """
@@ -216,9 +222,9 @@ df_moa_count[(df_moa_count['train'] == 0) & (df_moa_count['test'] >= 1)]
 ## present in train set but not present in test set
 df_moa_count[(df_moa_count['train'] > 1) & (df_moa_count['test'] == 0)]
 
-len(df_pert_cpds_moas[df_pert_cpds_moas['train']]['pert_iname'].unique()) ##no of compounds in train data
+print("Compounds in train data:", len(df_pert_cpds_moas[df_pert_cpds_moas['train']]['pert_iname'].unique()))
 
-len(df_pert_cpds_moas[df_pert_cpds_moas['test']]['pert_iname'].unique()) ##no of compounds in test data
+print("Compounds in test data:", len(df_pert_cpds_moas[df_pert_cpds_moas['test']]['pert_iname'].unique()))
 
 def save_to_csv(df, path, file_name, compress=None):
     """saves dataframes to csv"""
@@ -228,4 +234,5 @@ def save_to_csv(df, path, file_name, compress=None):
 
     df.to_csv(os.path.join(path, file_name), index=False, compression=compress)
 
-save_to_csv(df_pert_cpds_moas, "celldino_ps8_ViTs", 'split_moas_cpds_celldino_ps8_ViTs_final.csv')
+save_to_csv(df_pert_cpds_moas, config['output_folder'], config['split_moas_output'])
+

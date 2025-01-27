@@ -1,5 +1,5 @@
 universe = docker
-docker_image = docker://adipill04/pipeline:8
+docker_image = docker://adipill04/pipeline:10
 
 executable=./extract.sh
 
@@ -14,9 +14,9 @@ transfer_output_files = /scratch/appillai/DINOv2_CellPainting/dinov2/02env.sh
 
 +wantGPULab = True
 request_cpus = 10
-request_gpus = 1
+request_gpus = 9
 request_memory = 50GB
 request_disk = 150GB
-requirements = (Machine == "jcaicedogpu0000.chtc.wisc.edu")
+requirements = (Machine == "jcaicedogpu0001.chtc.wisc.edu")
 
 queue
