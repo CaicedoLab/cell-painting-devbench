@@ -1,0 +1,3 @@
+export exp_name=test_pipeline
+export feat_name=dino_balancing.npz
+export model_name=cellpainting_dinov2
