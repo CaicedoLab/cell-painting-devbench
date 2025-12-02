@@ -9,7 +9,7 @@ fi
 CONFIG="$1"
 
 if [ ! -f "$CONFIG" ]; then
-    echo "Error: $file does not exist."
+    echo "Error: $CONFIG does not exist."
     exit 1
 fi
 
